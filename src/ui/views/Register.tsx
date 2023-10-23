@@ -28,8 +28,14 @@ const Register = withSceneMatched([SceneKeys.REGISTER])(() => {
   );
 
   const onConnect = useCallback(async () => {
-    const addresses = await provider.request({ method: "eth_requestAccounts" });
-    createUser(addresses[0]);
+    try {
+      const addresses = await provider.request({
+        method: "eth_requestAccounts",
+      });
+      createUser(addresses[0]);
+    } catch (e) {
+      console.error(e);
+    }
   }, [createUser, provider]);
 
   const onRegister = useCallback(() => {
