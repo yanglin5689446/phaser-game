@@ -20,7 +20,7 @@ export enum Biomes {
   FOREST,
   MIXED_FOREST,
   NEEDLE_LEAF_FOREST,
-  AIRPINE_FOREST,
+  ALPINE_FOREST,
   SNOW,
   WATER,
   DEEP_WATER,
@@ -35,7 +35,7 @@ export const BiomeColors: Record<Biomes, number> = {
   [Biomes.FOREST]: 0x00aa26,
   [Biomes.MIXED_FOREST]: 0x377657,
   [Biomes.NEEDLE_LEAF_FOREST]: 0x4c6a41,
-  [Biomes.AIRPINE_FOREST]: 0x4c6a41,
+  [Biomes.ALPINE_FOREST]: 0x4c6a41,
   [Biomes.SNOW]: 0xdcdcdc,
   [Biomes.WATER]: 0x29557a,
   [Biomes.DEEP_WATER]: 0x2e3359,
@@ -50,7 +50,7 @@ export const BiomeNames: Record<Biomes, string> = {
   [Biomes.FOREST]: "Forest",
   [Biomes.MIXED_FOREST]: "Mixed Forest",
   [Biomes.NEEDLE_LEAF_FOREST]: "Needle Leaf Forest",
-  [Biomes.AIRPINE_FOREST]: "Airpine Forest",
+  [Biomes.ALPINE_FOREST]: "Alpine Forest",
   [Biomes.SNOW]: "Snow",
   [Biomes.WATER]: "Shallow Water",
   [Biomes.DEEP_WATER]: "Deep Water",
@@ -116,7 +116,7 @@ export const generate = (x: number, y: number) => {
     } else if (ret.moisture < 0.66) {
       ret.type = Biomes.SHRUBLAND;
     } else {
-      ret.type = Biomes.AIRPINE_FOREST;
+      ret.type = Biomes.ALPINE_FOREST;
     }
   } else {
     ret.type = Biomes.SNOW;
