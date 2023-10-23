@@ -175,7 +175,7 @@ export default class MapScene extends Phaser.Scene {
 
   private initCamera() {
     const camera = this.cameras.main;
-    camera.zoom = 1;
+    camera.zoom = ZOOM_LEVEL_MIN;
 
     camera.scrollX = camera.width / 2;
     camera.scrollY = camera.height / 2;

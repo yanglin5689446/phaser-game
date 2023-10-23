@@ -7,8 +7,6 @@ import { goto } from "state/scene";
 import logo from "assets/images/logo.png";
 import Web3 from "web3";
 import { setOrigin } from "state/player";
-import { select } from "state/map";
-import { serialize } from "libs/coordinates";
 
 const Register = withSceneMatched([SceneKeys.REGISTER])(() => {
   const dispatch = useAppDispatch();
@@ -21,7 +19,6 @@ const Register = withSceneMatched([SceneKeys.REGISTER])(() => {
       const q = parseInt(address.slice(2, 22), 16) % (1e7 + 7);
       const r = parseInt(address.slice(22), 16) % (1e7 + 7);
       dispatch(setOrigin({ q, r }));
-      dispatch(select(serialize(q, r)));
       dispatch(goto(SceneKeys.MAP));
     },
     [dispatch]
