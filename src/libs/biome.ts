@@ -5,6 +5,8 @@ import { TILE_RADIUS } from "./coordinates";
 const MOISTURE_SEED = "MOISTURE_SEED";
 const HEIGHT_SEED = "HEIGHT_SEED";
 const MOISTURE_FREQUENCY = 0.6;
+const FUDGE_FACTOR = 1.2;
+const EXPONENT = 1.6;
 
 export const moistureNoise = createNoise2D(alea(MOISTURE_SEED));
 export const elevationNoise = createNoise2D(alea(HEIGHT_SEED));
@@ -54,7 +56,7 @@ export const BiomeNames: Record<Biomes, string> = {
   [Biomes.DEEP_WATER]: "Deep Water",
 };
 
-export const CONTOUR_INTERVALS = [0.2, 0.3, 0.5, 0.7, 0.9];
+export const CONTOUR_INTERVALS = [0.08, 0.2, 0.5, 0.7, 0.95];
 
 export const generate = (x: number, y: number) => {
   const nx = x / TILE_RADIUS / 64;
@@ -79,6 +81,11 @@ export const generate = (x: number, y: number) => {
     0.12 * elevationNoise(16 * mnx, 16 * mny);
   // map from [-1, 1] to [0, 1]
   elevation = (elevation + 1) / 2;
+
+  // redistribution
+  elevation = Math.pow(elevation * FUDGE_FACTOR, EXPONENT);
+  elevation /= FUDGE_FACTOR ** EXPONENT;
+
   ret.elevation = elevation;
 
   if (elevation < CONTOUR_INTERVALS[0]) {
