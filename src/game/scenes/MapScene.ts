@@ -12,12 +12,12 @@ const ZOOM_LEVEL_MAX = 1.5;
 
 const CHUNK_SIZE = 32;
 
-export default class MainScene extends Phaser.Scene {
+export default class MapScene extends Phaser.Scene {
   tiles: Record<string, Tile>;
   state;
 
   constructor() {
-    super({ key: "MainScene" });
+    super({ key: "MapScene" });
     this.tiles = {};
   }
 
@@ -42,7 +42,7 @@ export default class MainScene extends Phaser.Scene {
   create() {
     const camera = this.initCamera();
 
-    this.loadCells(this.state.start.q, this.state.start.r);
+    this.loadTiles(this.state.start.q, this.state.start.r);
     let dragging = false;
     let previousKey;
 
@@ -70,7 +70,7 @@ export default class MainScene extends Phaser.Scene {
         const { q, r } = cartesianToHexagonal(viwerX, viwerY);
         const key = serialize(q, r);
         if (previousKey !== key) {
-          this.loadCells(q, r);
+          this.loadTiles(q, r);
         }
         previousKey = key;
 
@@ -94,7 +94,7 @@ export default class MainScene extends Phaser.Scene {
 
       const { q, r } = cartesianToHexagonal(viwerX, viwerY);
       const { x, y } = hexagonalToCartesian(q, r);
-      this.loadCells(q, r);
+      this.loadTiles(q, r);
 
       const duration =
         200 +
@@ -137,7 +137,7 @@ export default class MainScene extends Phaser.Scene {
 
   update() {}
 
-  private loadCells(sq: number, sr: number, N = CHUNK_SIZE) {
+  private loadTiles(sq: number, sr: number, N = CHUNK_SIZE) {
     store.dispatch(generateChunk({ q: sq, r: sr, n: N }));
 
     // load cells in range N

@@ -48,7 +48,7 @@ export const BiomeNames: Record<Biomes, string> = {
   [Biomes.FOREST]: "Forest",
   [Biomes.MIXED_FOREST]: "Mixed Forest",
   [Biomes.NEEDLE_LEAF_FOREST]: "Needle Leaf Forest",
-  [Biomes.AIRPINE_FOREST]: "Airpine_Forest",
+  [Biomes.AIRPINE_FOREST]: "Airpine Forest",
   [Biomes.SNOW]: "Snow",
   [Biomes.WATER]: "Shallow Water",
   [Biomes.DEEP_WATER]: "Deep Water",

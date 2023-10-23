@@ -1,7 +1,7 @@
 import "phaser";
 import HexagonPlugin from "phaser3-rex-plugins/plugins/hexagon-plugin.js";
-import MainScene from "./game/scenes/MainScene";
 import PreloadScene from "./game/scenes/PreloadScene";
+import MapScene from "./game/scenes/MapScene";
 
 const DEFAULT_WIDTH = window.innerWidth;
 const DEFAULT_HEIGHT = window.innerHeight;
@@ -16,7 +16,7 @@ const config = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
   },
-  scene: [PreloadScene, MainScene],
+  scene: [PreloadScene, MapScene],
   physics: {
     default: "arcade",
     arcade: {
