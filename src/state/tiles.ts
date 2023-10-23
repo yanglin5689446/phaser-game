@@ -1,14 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { generate } from "libs/biome";
 import { hexagonalToCartesian, serialize } from "libs/coordinates";
-
-interface TileData {
-  type: number;
-  moisture: number;
-  elevation: number;
-  color: number;
-}
-
 export interface TilesState {
   tiles: Record<string, TileData>;
   selected?: string;

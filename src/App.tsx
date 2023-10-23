@@ -1,11 +1,13 @@
 import { Box } from "@chakra-ui/react";
-import TileInfo from "ui/components/TileInfo";
-import OverviewHint from "ui/components/OverviewHint";
+import Loading from "ui/views/Loading";
+import Register from "ui/views/Register";
+import Map from "ui/views/Map";
 
 const App = () => (
   <Box position="absolute" width="100vw" height="100vh" pointerEvents="none">
-    <TileInfo />
-    <OverviewHint />
+    <Loading />
+    <Register />
+    <Map />
   </Box>
 );
 

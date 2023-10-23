@@ -24,11 +24,11 @@ export default class MapScene extends Phaser.Scene {
   preload() {
     // generate random starting point
     // @todo: use real generator for each playser
-    const q = Math.round(2e6 * Math.random() - 1e6);
-    const r = Math.round(2e6 * Math.random() - 1e6);
+    const state = store.getState();
+    const { q, r } = state.player.origin;
     const { x, y } = hexagonalToCartesian(q, r);
     this.state = {
-      start: {
+      origin: {
         q,
         r,
         offset: {
@@ -42,13 +42,13 @@ export default class MapScene extends Phaser.Scene {
   create() {
     const camera = this.initCamera();
 
-    this.loadTiles(this.state.start.q, this.state.start.r);
+    this.loadTiles(this.state.origin.q, this.state.origin.r);
     let dragging = false;
     let previousKey;
 
     const cameraOffset = {
-      x: this.state.start.offset.x + camera.width / 2,
-      y: this.state.start.offset.y + camera.height / 2,
+      x: this.state.origin.offset.x + camera.width / 2,
+      y: this.state.origin.offset.y + camera.height / 2,
     };
 
     // Move camera on drag, load tiles when tiles are in viewport
@@ -149,7 +149,7 @@ export default class MapScene extends Phaser.Scene {
             this,
             sq + q,
             sr + r,
-            this.state.start.offset
+            this.state.origin.offset
           );
       }
     }

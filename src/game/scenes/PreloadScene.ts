@@ -1,3 +1,6 @@
+import { SceneKeys } from "constants/scenes";
+import { store } from "state";
+
 export default class PreloadScene extends Phaser.Scene {
   constructor() {
     super({ key: "PreloadScene" });
@@ -6,6 +9,12 @@ export default class PreloadScene extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.scene.start("MapScene");
+    const unsubscribe = store.subscribe(() => {
+      const state = store.getState();
+      if (state.scene.current === SceneKeys.MAP) {
+        unsubscribe();
+        this.scene.start("MapScene");
+      }
+    });
   }
 }
