@@ -164,6 +164,9 @@ export default class MapScene extends Phaser.Scene {
     Object.values(this.tiles).forEach((tile) => {
       if (center.distance(tile) <= N) {
         tile.setActive(true).setVisible(true);
+      } else if (center.distance(tile) <= 2 * N) {
+        tile.destroy();
+        delete this.tiles[serialize(tile.q, tile.r)];
       } else {
         tile.setActive(false).setVisible(false);
       }
