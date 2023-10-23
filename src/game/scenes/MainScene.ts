@@ -14,19 +14,42 @@ const CHUNK_SIZE = 32;
 
 export default class MainScene extends Phaser.Scene {
   tiles: Record<string, Tile>;
+  state;
 
   constructor() {
     super({ key: "MainScene" });
     this.tiles = {};
   }
 
-  preload() {}
+  preload() {
+    // generate random starting point
+    // @todo: use real generator for each playser
+    const q = Math.round(2e6 * Math.random() - 1e6);
+    const r = Math.round(2e6 * Math.random() - 1e6);
+    const { x, y } = hexagonalToCartesian(q, r);
+    this.state = {
+      start: {
+        q,
+        r,
+        offset: {
+          x,
+          y,
+        },
+      },
+    };
+  }
 
   create() {
     const camera = this.initCamera();
-    this.loadCells(0, 0);
+
+    this.loadCells(this.state.start.q, this.state.start.r);
     let dragging = false;
     let previousKey;
+
+    const cameraOffset = {
+      x: this.state.start.offset.x + camera.width / 2,
+      y: this.state.start.offset.y + camera.height / 2,
+    };
 
     // Move camera on drag, load tiles when tiles are in viewport
     this.input.on("pointermove", (pointer) => {
@@ -41,8 +64,8 @@ export default class MainScene extends Phaser.Scene {
         const { tiles } = store.getState();
         if (tiles.selected) store.dispatch(select(undefined));
 
-        const viwerX = camera.scrollX + camera.width / 2;
-        const viwerY = camera.scrollY + camera.height / 2;
+        const viwerX = cameraOffset.x + camera.scrollX;
+        const viwerY = cameraOffset.y + camera.scrollY;
 
         const { q, r } = cartesianToHexagonal(viwerX, viwerY);
         const key = serialize(q, r);
@@ -61,13 +84,13 @@ export default class MainScene extends Phaser.Scene {
       if (dragging) return;
 
       const viwerX =
+        cameraOffset.x +
         (pointer.x - camera.centerX) / camera.zoom +
-        camera.scrollX +
-        camera.width / 2;
+        camera.scrollX;
       const viwerY =
+        cameraOffset.y +
         (pointer.y - camera.centerY) / camera.zoom +
-        camera.scrollY +
-        camera.height / 2;
+        camera.scrollY;
 
       const { q, r } = cartesianToHexagonal(viwerX, viwerY);
       const { x, y } = hexagonalToCartesian(q, r);
@@ -81,8 +104,8 @@ export default class MainScene extends Phaser.Scene {
       // Pan (or move) the camera to the specified position
       this.tweens.add({
         targets: camera,
-        scrollX: x - camera.width / 2,
-        scrollY: y - camera.height / 2,
+        scrollX: x - cameraOffset.x,
+        scrollY: y - cameraOffset.y,
         duration: duration,
         ease: "Sine.easeInOut",
       });
@@ -121,7 +144,13 @@ export default class MainScene extends Phaser.Scene {
     for (let q = -N; q <= N; q++) {
       for (let r = Math.max(-N, -q - N); r <= Math.min(N, -q + N); r++) {
         const key = serialize(sq + q, sr + r);
-        if (!this.tiles[key]) this.tiles[key] = new Tile(this, sq + q, sr + r);
+        if (!this.tiles[key])
+          this.tiles[key] = new Tile(
+            this,
+            sq + q,
+            sr + r,
+            this.state.start.offset
+          );
       }
     }
 
@@ -142,8 +171,8 @@ export default class MainScene extends Phaser.Scene {
     const camera = this.cameras.main;
     camera.zoom = 1;
 
-    camera.scrollX = -camera.width / 2;
-    camera.scrollY = -camera.height / 2;
+    camera.scrollX = camera.width / 2;
+    camera.scrollY = camera.height / 2;
 
     return camera;
   }

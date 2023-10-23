@@ -17,9 +17,9 @@ class Tile extends Phaser.GameObjects.Container {
 
   static BORDER_SIZE = 4;
 
-  constructor(scene, q, r) {
+  constructor(scene, q, r, offset) {
     const coordinate = hexagonalToCartesian(q, r);
-    super(scene, coordinate.x, coordinate.y, [
+    super(scene, coordinate.x - offset.x, coordinate.y - offset.y, [
       new Phaser.GameObjects.Graphics(scene),
     ]);
     scene.add.existing(this);

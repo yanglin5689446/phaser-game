@@ -33,7 +33,7 @@ export const tilesSlice = createSlice({
           const key = serialize(sq + q, sr + r);
 
           if (!state.tiles[key]) {
-            const { x, y } = hexagonalToCartesian(q, r);
+            const { x, y } = hexagonalToCartesian(sq + q, sq + r);
             state.tiles[key] = generate(x, y);
           }
         }
