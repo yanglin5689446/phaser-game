@@ -1,22 +1,27 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { generate } from "libs/biome";
 import { hexagonalToCartesian, serialize } from "libs/coordinates";
-export interface TilesState {
+export interface Mapstate {
   tiles: Record<string, TileData>;
   selected?: string;
+  center?: string;
 }
 
-const initialState: TilesState = {
+const initialState: Mapstate = {
   tiles: {},
   selected: undefined,
+  center: undefined,
 };
 
-export const tilesSlice = createSlice({
-  name: "tiles",
+export const mapSlice = createSlice({
+  name: "map",
   initialState,
   reducers: {
     select: (state, action) => {
       state.selected = action.payload;
+    },
+    setCenter: (state, action) => {
+      state.center = action.payload;
     },
     generateChunk(state, action) {
       const { q: sq, r: sr, n } = action.payload;
@@ -34,6 +39,6 @@ export const tilesSlice = createSlice({
   },
 });
 
-export const { select, generateChunk } = tilesSlice.actions;
+export const { select, generateChunk, setCenter } = mapSlice.actions;
 
-export default tilesSlice.reducer;
+export default mapSlice.reducer;

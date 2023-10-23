@@ -7,7 +7,7 @@ import { goto } from "state/scene";
 import logo from "assets/images/logo.png";
 import Web3 from "web3";
 import { setOrigin } from "state/player";
-import { select } from "state/tiles";
+import { select } from "state/map";
 import { serialize } from "libs/coordinates";
 
 const Register = withSceneMatched([SceneKeys.REGISTER])(() => {

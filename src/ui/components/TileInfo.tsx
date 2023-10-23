@@ -9,7 +9,7 @@ import {
 } from "libs/biome";
 
 const TileInfo = () => {
-  const { selected, tiles } = useAppSelector((state) => state.tiles);
+  const { selected, tiles } = useAppSelector((state) => state.map);
   const tile = selected ? tiles[selected] : null;
   const [q, r] = selected ? deserialize(selected) : [0, 0];
   return !!selected ? (

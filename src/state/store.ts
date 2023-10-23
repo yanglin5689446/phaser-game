@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import player from "./player";
-import tiles from "./tiles";
+import map from "./map";
 import scene from "./scene";
 
 export const store = configureStore({
   reducer: {
     player,
-    tiles,
+    map,
     scene,
   },
 });

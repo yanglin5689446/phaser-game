@@ -1,5 +1,5 @@
 import Tile from "../objects/Tile";
-import { generateChunk, select } from "state/tiles";
+import { generateChunk, select, setCenter } from "state/map";
 import { store } from "state";
 import {
   cartesianToHexagonal,
@@ -41,8 +41,10 @@ export default class MapScene extends Phaser.Scene {
 
   create() {
     const camera = this.initCamera();
+    const { origin } = this.state;
+    this.loadTiles(origin.q, origin.r);
+    store.dispatch(setCenter(serialize(origin.q, origin.r)));
 
-    this.loadTiles(this.state.origin.q, this.state.origin.r);
     let dragging = false;
     let previousKey;
 
@@ -61,8 +63,8 @@ export default class MapScene extends Phaser.Scene {
         dragging = true;
 
         // reset selected
-        const { tiles } = store.getState();
-        if (tiles.selected) store.dispatch(select(undefined));
+        const { map } = store.getState();
+        if (map.selected) store.dispatch(select(undefined));
 
         const viwerX = cameraOffset.x + camera.scrollX;
         const viwerY = cameraOffset.y + camera.scrollY;
@@ -70,6 +72,7 @@ export default class MapScene extends Phaser.Scene {
         const { q, r } = cartesianToHexagonal(viwerX, viwerY);
         const key = serialize(q, r);
         if (previousKey !== key) {
+          store.dispatch(setCenter(key));
           this.loadTiles(q, r);
         }
         previousKey = key;

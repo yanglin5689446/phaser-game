@@ -2,7 +2,7 @@ import { Box, Text } from "@chakra-ui/react";
 import { useAppSelector } from "state";
 
 const OverviewHint = () => {
-  const { selected } = useAppSelector((state) => state.tiles);
+  const { selected } = useAppSelector((state) => state.map);
 
   return (
     <Box

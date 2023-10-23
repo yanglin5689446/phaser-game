@@ -27,7 +27,7 @@ class Tile extends Phaser.GameObjects.Container {
     this.r = r;
 
     const state = store.getState();
-    this.biomeInfo = state.tiles.tiles[serialize(q, r)];
+    this.biomeInfo = state.map.tiles[serialize(q, r)];
     this.focused = false;
 
     this.initialize();
