@@ -5,7 +5,7 @@ import {
   BiomeNames,
   Biomes,
   normalizeElevation,
-  normalizeMoisture,
+  normalizeHumidity,
 } from "libs/biome";
 
 const TileInfo = () => {
@@ -32,7 +32,7 @@ const TileInfo = () => {
           Elevation: {normalizeElevation(tile?.elevation || 0).toFixed(2)}m
         </ListItem>
         <ListItem>
-          Moisture: {normalizeMoisture(tile?.moisture || 0).toFixed(1)}%
+          Humidity: {normalizeHumidity(tile?.humidity || 0).toFixed(1)}%
         </ListItem>
       </UnorderedList>
     </Box>

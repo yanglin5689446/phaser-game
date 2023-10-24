@@ -2,13 +2,13 @@ import { createNoise2D } from "simplex-noise";
 import alea from "alea";
 import { TILE_RADIUS } from "./coordinates";
 
-const MOISTURE_SEED = "MOISTURE_SEED";
+const HUMIDITY_SEED = "HUMIDITY_SEED";
 const HEIGHT_SEED = "HEIGHT_SEED";
-const MOISTURE_FREQUENCY = 0.6;
+const HUMIDITY_FREQUENCY = 0.6;
 const FUDGE_FACTOR = 1.2;
 const EXPONENT = 1.6;
 
-export const moistureNoise = createNoise2D(alea(MOISTURE_SEED));
+export const humidityNoise = createNoise2D(alea(HUMIDITY_SEED));
 export const elevationNoise = createNoise2D(alea(HEIGHT_SEED));
 
 export enum Biomes {
@@ -61,18 +61,18 @@ export const CONTOUR_INTERVALS = [0.08, 0.2, 0.5, 0.7, 0.95];
 export const generate = (x: number, y: number) => {
   const nx = x / TILE_RADIUS / 64;
   const ny = y / TILE_RADIUS / 64;
-  const mnx = nx * MOISTURE_FREQUENCY;
-  const mny = ny * MOISTURE_FREQUENCY;
+  const mnx = nx * HUMIDITY_FREQUENCY;
+  const mny = ny * HUMIDITY_FREQUENCY;
   const ret: any = {};
 
-  let moisture =
-    1 * moistureNoise(nx, ny) +
-    0.5 * moistureNoise(4 * nx, 4 * ny) +
-    0.25 * moistureNoise(8 * nx, 8 * ny) +
-    0.12 * moistureNoise(16 * nx, 16 * ny);
+  let humidity =
+    1 * humidityNoise(nx, ny) +
+    0.5 * humidityNoise(4 * nx, 4 * ny) +
+    0.25 * humidityNoise(8 * nx, 8 * ny) +
+    0.12 * humidityNoise(16 * nx, 16 * ny);
   // map from [-1, 1] to [0, 1]
-  moisture = (moisture + 1) / 2;
-  ret.moisture = moisture;
+  humidity = (humidity + 1) / 2;
+  ret.humidity = humidity;
 
   let elevation =
     1 * elevationNoise(mnx, mny) +
@@ -93,27 +93,27 @@ export const generate = (x: number, y: number) => {
   } else if (elevation < CONTOUR_INTERVALS[1]) {
     ret.type = Biomes.WATER;
   } else if (elevation < CONTOUR_INTERVALS[2]) {
-    if (ret.moisture < 0.16) {
+    if (ret.humidity < 0.16) {
       ret.type = Biomes.DESERT;
-    } else if (ret.moisture < 0.6) {
+    } else if (ret.humidity < 0.6) {
       ret.type = Biomes.GRASS;
     } else {
       ret.type = Biomes.FOREST;
     }
   } else if (elevation < CONTOUR_INTERVALS[3]) {
-    if (ret.moisture < 0.16) {
+    if (ret.humidity < 0.16) {
       ret.type = Biomes.DUNE;
-    } else if (ret.moisture < 0.5) {
+    } else if (ret.humidity < 0.5) {
       ret.type = Biomes.GRASS;
-    } else if (ret.moisture < 0.8) {
+    } else if (ret.humidity < 0.8) {
       ret.type = Biomes.MIXED_FOREST;
     } else {
       ret.type = Biomes.NEEDLE_LEAF_FOREST;
     }
   } else if (elevation < CONTOUR_INTERVALS[4]) {
-    if (ret.moisture < 0.33) {
+    if (ret.humidity < 0.33) {
       ret.type = Biomes.ROCK;
-    } else if (ret.moisture < 0.66) {
+    } else if (ret.humidity < 0.66) {
       ret.type = Biomes.SHRUBLAND;
     } else {
       ret.type = Biomes.ALPINE_FOREST;
@@ -126,13 +126,13 @@ export const generate = (x: number, y: number) => {
 
   return ret as {
     type: Biomes;
-    moisture: number;
+    humidity: number;
     elevation: number;
     color: number;
   };
 };
 
-export const normalizeMoisture = (moisture: number) => 100 * moisture;
+export const normalizeHumidity = (humidity: number) => 100 * humidity;
 export const normalizeElevation = (elevation: number) => {
   if (elevation < CONTOUR_INTERVALS[1]) return -2000 * (0.3 - elevation);
   else

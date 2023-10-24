@@ -1,6 +1,6 @@
 interface TileData {
   type: number;
-  moisture: number;
+  humidity: number;
   elevation: number;
   color: number;
 }

@@ -11,7 +11,7 @@ class Tile extends Phaser.GameObjects.Container {
   biomeInfo: {
     type: Biomes;
     elevation: number;
-    moisture: number;
+    humidity: number;
     color: number;
   };
 
