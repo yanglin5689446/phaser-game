@@ -1,42 +1,55 @@
 import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import { useAppSelector } from "state";
-import { deserialize } from "libs/coordinates";
 import {
   BiomeNames,
   Biomes,
   normalizeElevation,
   normalizeHumidity,
 } from "libs/biome";
+import { serialize } from "libs/coordinates";
 
 const TileInfo = () => {
   const { selected, tiles } = useAppSelector((state) => state.map);
-  const tile = selected ? tiles[selected] : null;
-  const [q, r] = selected ? deserialize(selected) : [0, 0];
-  return !!selected ? (
+  const tile = selected ? tiles[serialize(selected.q, selected.r)] : null;
+  return (
     <Box
       position="absolute"
       top={10}
       left={10}
-      bg="rgba(255, 255, 255, 0.8)"
-      p={10}
-      borderRadius={8}
+      opacity={!!selected ? 1 : 0}
+      transition=".2s opacity"
     >
-      <Text fontSize="2xl" fontWeight="bold">
-        {BiomeNames[tile?.type as Biomes]}
-      </Text>
-      <UnorderedList fontSize="lg" pt={3}>
-        <ListItem>
-          Coordinate: ({r}, {q})
-        </ListItem>
-        <ListItem>
-          Elevation: {normalizeElevation(tile?.elevation || 0).toFixed(2)}m
-        </ListItem>
-        <ListItem>
-          Humidity: {normalizeHumidity(tile?.humidity || 0).toFixed(1)}%
-        </ListItem>
-      </UnorderedList>
+      <Box bg="rgba(255, 255, 255, 0.8)" borderRadius={8} p={8}>
+        <Text fontSize="2xl" fontWeight="bold">
+          {BiomeNames[tile?.type as Biomes]}
+        </Text>
+        <UnorderedList fontSize="lg" pt={3}>
+          <ListItem>
+            Coordinate: ({selected?.q}, {selected?.r})
+          </ListItem>
+          <ListItem>
+            Elevation: {normalizeElevation(tile?.elevation || 0).toFixed(2)}m
+          </ListItem>
+          <ListItem>
+            Humidity: {normalizeHumidity(tile?.humidity || 0).toFixed(1)}%
+          </ListItem>
+        </UnorderedList>
+      </Box>
+      <Box bg="rgba(255, 255, 255, 0.8)" borderRadius={8} p={8} mt={4}>
+        <Text fontSize="2xl" fontWeight="bold">
+          Resources
+        </Text>
+        <UnorderedList fontSize="lg" pt={3}>
+          <ListItem>{tile?.rarity}</ListItem>
+        </UnorderedList>
+      </Box>
+      <Box bg="rgba(255, 255, 255, 0.8)" borderRadius={8} p={8} mt={4}>
+        <Text fontSize="2xl" fontWeight="bold">
+          Buildings
+        </Text>
+      </Box>
     </Box>
-  ) : null;
+  );
 };
 
 export default TileInfo;

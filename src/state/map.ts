@@ -1,16 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { generate } from "libs/biome";
 import { hexagonalToCartesian, serialize } from "libs/coordinates";
+
+const CHUNK_SIZE = 32;
 export interface Mapstate {
+  chunkSize: number;
   tiles: Record<string, TileData>;
-  selected?: string;
-  center?: string;
+  selected?: {
+    q: number;
+    r: number;
+  };
+  center?: {
+    q: number;
+    r: number;
+  };
+  // quick jump flag
+  jump?: boolean;
 }
 
 const initialState: Mapstate = {
+  chunkSize: CHUNK_SIZE,
   tiles: {},
   selected: undefined,
   center: undefined,
+  jump: false,
 };
 
 export const mapSlice = createSlice({
@@ -21,16 +34,21 @@ export const mapSlice = createSlice({
       state.selected = action.payload;
     },
     setCenter: (state, action) => {
-      state.center = action.payload;
-    },
-    generateChunk(state, action) {
-      const { q: sq, r: sr, n } = action.payload;
-      for (let q = -n; q <= n; q++) {
-        for (let r = Math.max(-n, -q - n); r <= Math.min(n, -q + n); r++) {
-          const key = serialize(sq + q, sr + r);
+      const { q, r, jump } = action.payload;
+      state.center = { q, r };
+      state.jump = !!jump;
+      if (!state.center) return;
+      const { chunkSize } = state;
+      for (let qi = -chunkSize; qi <= chunkSize; qi++) {
+        for (
+          let ri = Math.max(-chunkSize, -qi - chunkSize);
+          ri <= Math.min(chunkSize, -qi + chunkSize);
+          ri++
+        ) {
+          const key = serialize(q + qi, r + ri);
 
           if (!state.tiles[key]) {
-            const { x, y } = hexagonalToCartesian(sq + q, sq + r);
+            const { x, y } = hexagonalToCartesian(q + qi, r + ri);
             state.tiles[key] = generate(x, y);
           }
         }
@@ -39,6 +57,6 @@ export const mapSlice = createSlice({
   },
 });
 
-export const { select, generateChunk, setCenter } = mapSlice.actions;
+export const { select, setCenter } = mapSlice.actions;
 
 export default mapSlice.reducer;

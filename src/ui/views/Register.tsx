@@ -6,7 +6,7 @@ import { useAppDispatch } from "state";
 import { goto } from "state/scene";
 import logo from "assets/images/logo.png";
 import Web3 from "web3";
-import { setOrigin } from "state/player";
+import { setCenter } from "state/map";
 
 const Register = withSceneMatched([SceneKeys.REGISTER])(() => {
   const dispatch = useAppDispatch();
@@ -18,7 +18,7 @@ const Register = withSceneMatched([SceneKeys.REGISTER])(() => {
       // @todo: update algorithm
       const q = parseInt(address.slice(2, 22), 16) % (1e7 + 7);
       const r = parseInt(address.slice(22), 16) % (1e7 + 7);
-      dispatch(setOrigin({ q, r }));
+      dispatch(setCenter({ q, r, jump: true }));
       dispatch(goto(SceneKeys.MAP));
     },
     [dispatch]

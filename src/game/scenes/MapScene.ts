@@ -1,19 +1,19 @@
 import Tile from "../objects/Tile";
-import { generateChunk, select, setCenter } from "state/map";
+import { select, setCenter } from "state/map";
 import { store } from "state";
 import {
   cartesianToHexagonal,
   hexagonalToCartesian,
   serialize,
 } from "libs/coordinates";
+import { setOwnedTiles } from "state/player";
 
 const ZOOM_LEVEL_MIN = 0.25;
 const ZOOM_LEVEL_MAX = 1.5;
 
-const CHUNK_SIZE = 32;
-
 export default class MapScene extends Phaser.Scene {
   tiles: Record<string, Tile>;
+  cameraOffset;
   state;
 
   constructor() {
@@ -25,7 +25,7 @@ export default class MapScene extends Phaser.Scene {
     // generate random starting point
     // @todo: use real generator for each playser
     const state = store.getState();
-    const { q, r } = state.player.origin;
+    const { q, r } = state.map.center || { q: 0, r: 0 };
     const { x, y } = hexagonalToCartesian(q, r);
     this.state = {
       origin: {
@@ -40,18 +40,49 @@ export default class MapScene extends Phaser.Scene {
   }
 
   create() {
-    const camera = this.initCamera();
     const { origin } = this.state;
-    this.loadTiles(origin.q, origin.r);
-    store.dispatch(setCenter(serialize(origin.q, origin.r)));
+    const camera = this.initCamera(origin);
+    const state = store.getState();
 
     let dragging = false;
     let previousKey;
 
-    const cameraOffset = {
-      x: this.state.origin.offset.x + camera.width / 2,
-      y: this.state.origin.offset.y + camera.height / 2,
+    const updateCenter = () => {
+      const state = store.getState();
+      const { center, jump } = state.map;
+      if (!center) return;
+      const centerKey = serialize(center.q, center.r);
+
+      if (centerKey !== previousKey) {
+        const { x, y } = hexagonalToCartesian(center.q, center.r);
+        this.loadTiles(center.q, center.r);
+        if (jump) {
+          camera.scrollX = x - this.cameraOffset.x;
+          camera.scrollY = y - this.cameraOffset.y;
+        }
+      }
     };
+    store.subscribe(updateCenter);
+
+    // load first tile
+    // @todo: connect real API
+    const originTileKey = serialize(origin.q, origin.r);
+    const originTile = state.map.tiles[originTileKey];
+    store.dispatch(
+      setOwnedTiles([
+        {
+          ...origin,
+          ...originTile,
+          resources: {
+            timber: 100,
+            rocks: 50,
+            minerals: 0,
+          },
+        },
+      ])
+    );
+
+    updateCenter();
 
     // Move camera on drag, load tiles when tiles are in viewport
     this.input.on("pointermove", (pointer) => {
@@ -66,14 +97,13 @@ export default class MapScene extends Phaser.Scene {
         const { map } = store.getState();
         if (map.selected) store.dispatch(select(undefined));
 
-        const viwerX = cameraOffset.x + camera.scrollX;
-        const viwerY = cameraOffset.y + camera.scrollY;
+        const viwerX = this.cameraOffset.x + camera.scrollX;
+        const viwerY = this.cameraOffset.y + camera.scrollY;
 
         const { q, r } = cartesianToHexagonal(viwerX, viwerY);
         const key = serialize(q, r);
         if (previousKey !== key) {
-          store.dispatch(setCenter(key));
-          this.loadTiles(q, r);
+          store.dispatch(setCenter({ q, r }));
         }
         previousKey = key;
 
@@ -87,41 +117,16 @@ export default class MapScene extends Phaser.Scene {
       if (dragging) return;
 
       const viwerX =
-        cameraOffset.x +
+        this.cameraOffset.x +
         (pointer.x - camera.centerX) / camera.zoom +
         camera.scrollX;
       const viwerY =
-        cameraOffset.y +
+        this.cameraOffset.y +
         (pointer.y - camera.centerY) / camera.zoom +
         camera.scrollY;
 
       const { q, r } = cartesianToHexagonal(viwerX, viwerY);
-      const { x, y } = hexagonalToCartesian(q, r);
-      this.loadTiles(q, r);
-
-      const duration =
-        200 +
-        ((ZOOM_LEVEL_MAX - camera.zoom) / (ZOOM_LEVEL_MAX - ZOOM_LEVEL_MIN)) *
-          500;
-
-      // Pan (or move) the camera to the specified position
-      this.tweens.add({
-        targets: camera,
-        scrollX: x - cameraOffset.x,
-        scrollY: y - cameraOffset.y,
-        duration: duration,
-        ease: "Sine.easeInOut",
-      });
-
-      // Zoom the camera to the specified zoom level
-      this.tweens.add({
-        targets: camera,
-        zoom: ZOOM_LEVEL_MAX,
-        duration,
-        ease: "Sine.easeInOut",
-      });
-
-      setTimeout(() => store.dispatch(select(serialize(q, r))), duration - 100);
+      this.spotlightOn(q, r);
     });
 
     // Register mouse wheel events
@@ -140,9 +145,9 @@ export default class MapScene extends Phaser.Scene {
 
   update() {}
 
-  private loadTiles(sq: number, sr: number, N = CHUNK_SIZE) {
-    store.dispatch(generateChunk({ q: sq, r: sr, n: N }));
-
+  private loadTiles(sq: number, sr: number) {
+    const state = store.getState();
+    const N = state.map.chunkSize;
     // load cells in range N
     for (let q = -N; q <= N; q++) {
       for (let r = Math.max(-N, -q - N); r <= Math.min(N, -q + N); r++) {
@@ -173,13 +178,49 @@ export default class MapScene extends Phaser.Scene {
     });
   }
 
-  private initCamera() {
+  private initCamera(origin) {
     const camera = this.cameras.main;
+
+    this.cameraOffset = {
+      x: origin.offset.x + camera.width / 2,
+      y: origin.offset.y + camera.height / 2,
+    };
     camera.zoom = ZOOM_LEVEL_MIN;
 
     camera.scrollX = camera.width / 2;
     camera.scrollY = camera.height / 2;
 
     return camera;
+  }
+
+  private spotlightOn(q, r) {
+    const camera = this.cameras.main;
+    this.loadTiles(q, r);
+
+    const { x, y } = hexagonalToCartesian(q, r);
+
+    const duration =
+      200 +
+      ((ZOOM_LEVEL_MAX - camera.zoom) / (ZOOM_LEVEL_MAX - ZOOM_LEVEL_MIN)) *
+        500;
+
+    // Pan (or move) the camera to the specified position
+    this.tweens.add({
+      targets: camera,
+      scrollX: x - this.cameraOffset.x,
+      scrollY: y - this.cameraOffset.y,
+      duration: duration,
+      ease: "Sine.easeInOut",
+    });
+
+    // Zoom the camera to the specified zoom level
+    this.tweens.add({
+      targets: camera,
+      zoom: ZOOM_LEVEL_MAX,
+      duration,
+      ease: "Sine.easeInOut",
+    });
+
+    setTimeout(() => store.dispatch(select({ q, r })), duration - 100);
   }
 }

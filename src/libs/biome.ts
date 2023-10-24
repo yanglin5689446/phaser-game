@@ -4,12 +4,14 @@ import { TILE_RADIUS } from "./coordinates";
 
 const HUMIDITY_SEED = "HUMIDITY_SEED";
 const HEIGHT_SEED = "HEIGHT_SEED";
+const RARITY_SEED = "RARITY_SEED";
 const HUMIDITY_FREQUENCY = 0.6;
 const FUDGE_FACTOR = 1.2;
 const EXPONENT = 1.6;
 
 export const humidityNoise = createNoise2D(alea(HUMIDITY_SEED));
 export const elevationNoise = createNoise2D(alea(HEIGHT_SEED));
+export const rarityNoise = createNoise2D(alea(RARITY_SEED));
 
 export enum Biomes {
   DESERT,
@@ -27,18 +29,18 @@ export enum Biomes {
 }
 
 export const BiomeColors: Record<Biomes, number> = {
-  [Biomes.DESERT]: 0xf6f2cb,
+  [Biomes.DESERT]: 0xfff9c4,
   [Biomes.DUNE]: 0xffd687,
   [Biomes.ROCK]: 0x9e9e9e,
   [Biomes.GRASS]: 0x8bba31,
-  [Biomes.SHRUBLAND]: 0x8c6c28,
+  [Biomes.SHRUBLAND]: 0x9e9d24,
   [Biomes.FOREST]: 0x00aa26,
   [Biomes.MIXED_FOREST]: 0x377657,
   [Biomes.NEEDLE_LEAF_FOREST]: 0x4c6a41,
   [Biomes.ALPINE_FOREST]: 0x4c6a41,
-  [Biomes.SNOW]: 0xdcdcdc,
-  [Biomes.WATER]: 0x29557a,
-  [Biomes.DEEP_WATER]: 0x2e3359,
+  [Biomes.SNOW]: 0xe3e3e3,
+  [Biomes.WATER]: 0x64b5f6,
+  [Biomes.DEEP_WATER]: 0x3f51b5,
 };
 
 export const BiomeNames: Record<Biomes, string> = {
@@ -56,11 +58,11 @@ export const BiomeNames: Record<Biomes, string> = {
   [Biomes.DEEP_WATER]: "Deep Water",
 };
 
-export const CONTOUR_INTERVALS = [0.08, 0.2, 0.5, 0.7, 0.95];
+export const CONTOUR_INTERVALS = [0.05, 0.2, 0.5, 0.7, 0.95];
 
 export const generate = (x: number, y: number) => {
-  const nx = x / TILE_RADIUS / 64;
-  const ny = y / TILE_RADIUS / 64;
+  const nx = x / TILE_RADIUS / 32;
+  const ny = y / TILE_RADIUS / 32;
   const mnx = nx * HUMIDITY_FREQUENCY;
   const mny = ny * HUMIDITY_FREQUENCY;
   const ret: any = {};
@@ -87,6 +89,16 @@ export const generate = (x: number, y: number) => {
   elevation /= FUDGE_FACTOR ** EXPONENT;
 
   ret.elevation = elevation;
+
+  let rarity =
+    1 * rarityNoise(mnx, mny) +
+    0.5 * rarityNoise(4 * mnx, 4 * mny) +
+    0.25 * rarityNoise(8 * mnx, 8 * mny) +
+    0.12 * rarityNoise(16 * mnx, 16 * mny);
+  // map from [-1, 1] to [0, 1]
+  rarity = (rarity + 1) / 2;
+
+  ret.rarity = rarity;
 
   if (elevation < CONTOUR_INTERVALS[0]) {
     ret.type = Biomes.DEEP_WATER;
@@ -124,12 +136,7 @@ export const generate = (x: number, y: number) => {
 
   ret.color = BiomeColors[ret.type];
 
-  return ret as {
-    type: Biomes;
-    humidity: number;
-    elevation: number;
-    color: number;
-  };
+  return ret as TileData;
 };
 
 export const normalizeHumidity = (humidity: number) => 100 * humidity;

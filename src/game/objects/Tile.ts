@@ -8,6 +8,7 @@ class Tile extends Phaser.GameObjects.Container {
   q: number;
   interactionArea;
   focused: boolean;
+  isOwned: boolean;
   biomeInfo: {
     type: Biomes;
     elevation: number;
@@ -15,7 +16,7 @@ class Tile extends Phaser.GameObjects.Container {
     color: number;
   };
 
-  static BORDER_SIZE = 4;
+  static BORDER_SIZE = 8;
 
   constructor(scene, q, r, offset) {
     const coordinate = hexagonalToCartesian(q, r);
@@ -62,24 +63,28 @@ class Tile extends Phaser.GameObjects.Container {
     const children = this.getAll();
     const base = children[0] as Phaser.GameObjects.Graphics;
 
+    const state = store.getState();
+    const { ownedTiles } = state.player;
+    const isOwned = ownedTiles.find(
+      (tile) => tile.q === this.q && tile.r === this.r
+    );
     base.clear();
     base
       .fillStyle(this.biomeInfo?.color)
-      .fillPoints(this.interactionArea.points, true)
-      .lineStyle(Tile.BORDER_SIZE, 0x333333)
-      .strokePoints(this.interactionArea.points, true);
-    if (this.focused) {
-      // @ts-expect-error
-      const inset = new Phaser.Geom.rexHexagon(
-        0,
-        0,
-        TILE_RADIUS - 2 * Tile.BORDER_SIZE,
-        1
-      );
-      base
-        .lineStyle(2 * Tile.BORDER_SIZE, 0xffea00)
-        .strokePoints(inset.points, true);
-    }
+      .fillPoints(this.interactionArea.points, true);
+    // @todo: better way to portrait the owner ship of the tile
+    base
+      .lineStyle(
+        Tile.BORDER_SIZE * (isOwned ? 2 : 1),
+        isOwned ? 0xef5350 : 0xcccccc
+      )
+      .strokePoints([
+        ...this.interactionArea.points,
+        this.interactionArea.points[0],
+        this.interactionArea.points[1],
+      ]);
+
+    if (isOwned) this.setDepth(1);
   }
 
   preUpdate() {}

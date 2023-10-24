@@ -1,27 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState: {
-  origin: {
-    q: number;
-    r: number;
-  };
+  ownedTiles: Array<OwnedTileData>;
 } = {
-  origin: {
-    q: NaN,
-    r: NaN,
-  },
+  ownedTiles: [],
 };
 
 export const playerSlice = createSlice({
   name: "scene",
   initialState,
   reducers: {
-    setOrigin: (state, action) => {
-      state.origin = action.payload;
+    setOwnedTiles: (state, action) => {
+      state.ownedTiles = action.payload;
     },
   },
 });
 
-export const { setOrigin } = playerSlice.actions;
+export const { setOwnedTiles } = playerSlice.actions;
 
 export default playerSlice.reducer;
