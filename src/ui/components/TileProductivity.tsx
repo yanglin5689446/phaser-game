@@ -1,13 +1,16 @@
 import { Center, Flex, Image, Text } from "@chakra-ui/react";
 import { useAppSelector } from "state";
-import timber from "assets/images/timber.png";
-import rocks from "assets/images/rocks.png";
+import lumber from "assets/images/lumber.png";
+import stone from "assets/images/stone.png";
 import minerals from "assets/images/minerals.png";
+import { Resources } from "constants/resources";
 
-const OwnedTileInfo = () => {
-  const { select } = useAppSelector((state) => state.map);
+const TileProductivity = () => {
+  const { ownedTiles } = useAppSelector((state) => state.player);
+  const center = useAppSelector((state) => state.map.center);
+  const tile = ownedTiles.find((t) => t.q === center?.q && t.r === center?.r);
 
-  return (
+  return tile ? (
     <Center
       position="absolute"
       top={10}
@@ -23,7 +26,7 @@ const OwnedTileInfo = () => {
         gap={4}
       >
         <Flex alignItems="center" justify="space-between" gap={3} width={120}>
-          <Image src={timber} width={12} height={12} />
+          <Image src={lumber} width={12} height={12} />
           <Text
             fontSize="2xl"
             fontWeight="bold"
@@ -31,11 +34,11 @@ const OwnedTileInfo = () => {
             letterSpacing={2}
             textShadow="-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
           >
-            {/* resources.timber */}
+            {Math.floor(tile.resources[Resources.LUMBER])}
           </Text>
         </Flex>
         <Flex alignItems="center" justify="space-between" gap={3} width={120}>
-          <Image src={rocks} width={12} height={12} />
+          <Image src={stone} width={12} height={12} />
           <Text
             fontSize="2xl"
             fontWeight="bold"
@@ -43,7 +46,7 @@ const OwnedTileInfo = () => {
             letterSpacing={2}
             textShadow="-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
           >
-            {/* resources.rocks */}
+            {Math.floor(tile.resources[Resources.STONE])}
           </Text>
         </Flex>
         <Flex alignItems="center" justify="space-between" gap={3} width={120}>
@@ -55,12 +58,12 @@ const OwnedTileInfo = () => {
             letterSpacing={2}
             textShadow="-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
           >
-            {/* resources.minerals */}
+            {Math.floor(tile.resources[Resources.MINERALS])}
           </Text>
         </Flex>
       </Flex>
     </Center>
-  );
+  ) : null;
 };
 
-export default OwnedTileInfo;
+export default TileProductivity;

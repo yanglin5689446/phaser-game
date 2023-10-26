@@ -1,3 +1,5 @@
+declare type Resources = string;
+declare type Buildings = string;
 interface TileData {
   type: number;
   humidity: number;
@@ -6,12 +8,12 @@ interface TileData {
   rarity: number;
 }
 
-interface OwnedTileData extends TileData {
+interface TileCoordinate {
   q: number;
   r: number;
-  resources: {
-    timber: number;
-    rocks: number;
-    minerals: number;
-  };
+}
+
+interface OwnedTileData extends TileData, TileCoordinate {
+  resources: Record<Resources, number>;
+  buildings: Record<Buildings, number>;
 }

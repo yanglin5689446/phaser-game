@@ -32,6 +32,7 @@ const config = {
       },
     ],
   },
+  pauseOnBlur: false,
 };
 
 const game = new Phaser.Game(config);

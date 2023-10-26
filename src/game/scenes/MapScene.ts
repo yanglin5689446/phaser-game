@@ -7,6 +7,10 @@ import {
   serialize,
 } from "libs/coordinates";
 import { setOwnedTiles } from "state/player";
+import initOwnedTile from "libs/initOwnedTile";
+import { Buildings } from "constants/buildings";
+import { calculateProduction } from "libs/buildings";
+import { Resources } from "constants/resources";
 
 const ZOOM_LEVEL_MIN = 0.25;
 const ZOOM_LEVEL_MAX = 1.5;
@@ -42,10 +46,10 @@ export default class MapScene extends Phaser.Scene {
   create() {
     const { origin } = this.state;
     const camera = this.initCamera(origin);
-    const state = store.getState();
 
     let dragging = false;
     let previousKey;
+    let timestamp;
 
     const updateCenter = () => {
       const state = store.getState();
@@ -63,29 +67,65 @@ export default class MapScene extends Phaser.Scene {
         if (select) {
           camera.zoom = ZOOM_LEVEL_MAX;
         }
+        previousKey = centerKey;
       }
     };
     store.subscribe(updateCenter);
+    updateCenter();
 
     // load first tile
     // @todo: connect real API
-    const originTileKey = serialize(origin.q, origin.r);
-    const originTile = state.map.tiles[originTileKey];
-    store.dispatch(
-      setOwnedTiles([
-        {
-          ...origin,
-          ...originTile,
-          resources: {
-            timber: 100,
-            rocks: 50,
-            minerals: 0,
-          },
-        },
-      ])
-    );
+    let record;
+    try {
+      record = JSON.parse(localStorage.getItem("record") || "");
+    } catch (e) {
+      record = undefined;
+    }
+    const ownedTiles = record ? record.ownedTiles : [initOwnedTile(origin)];
+    timestamp = record ? record.timestamp : Date.now();
+    store.dispatch(setOwnedTiles(ownedTiles));
 
-    updateCenter();
+    // calculate yield based on time delta
+    const calculateResourcesYield = () => {
+      const state = store.getState();
+      const now = Date.now();
+      const delta = now - timestamp;
+      const { ownedTiles } = state.player;
+      const updated = ownedTiles.map((tile) => {
+        const yields = [Buildings.LUMBER_MILL, Buildings.QUARRY].map(
+          (building) =>
+            (delta / 3600_000) *
+            calculateProduction(building, tile.buildings[building])
+        );
+        const caps = [Buildings.LUMBER_STORAGE, Buildings.STONE_STORAGE].map(
+          (building) => calculateProduction(building, tile.buildings[building])
+        );
+        return {
+          ...tile,
+          resources: {
+            [Resources.LUMBER]: Math.min(
+              tile.resources[Resources.LUMBER] + yields[0],
+              caps[0]
+            ),
+            [Resources.STONE]: Math.min(
+              tile.resources[Resources.STONE] + yields[1],
+              caps[1]
+            ),
+            [Resources.MINERALS]: tile.resources[Resources.MINERALS],
+          },
+        };
+      });
+      timestamp = now;
+      localStorage.setItem("record", JSON.stringify({ timestamp, ownedTiles }));
+      store.dispatch(setOwnedTiles(updated));
+    };
+
+    this.time.addEvent({
+      delay: 1000,
+      callback: calculateResourcesYield,
+      callbackScope: this,
+      loop: true,
+    });
 
     // Move camera on drag, load tiles when tiles are in viewport
     this.input.on("pointermove", (pointer) => {

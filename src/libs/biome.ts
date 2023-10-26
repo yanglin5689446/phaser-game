@@ -1,6 +1,7 @@
 import { createNoise2D } from "simplex-noise";
 import alea from "alea";
 import { TILE_RADIUS } from "./coordinates";
+import { Resources } from "constants/resources";
 
 const HUMIDITY_SEED = "HUMIDITY_SEED";
 const HEIGHT_SEED = "HEIGHT_SEED";
@@ -27,6 +28,69 @@ export enum Biomes {
   WATER,
   DEEP_WATER,
 }
+
+export const BiomeResourceFactors: Record<Biomes, Record<Resources, number>> = {
+  [Biomes.DESERT]: {
+    [Resources.LUMBER]: 1,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 1,
+  },
+  [Biomes.DUNE]: {
+    [Resources.LUMBER]: 1,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 1,
+  },
+  [Biomes.ROCK]: {
+    [Resources.LUMBER]: 1,
+    [Resources.STONE]: 1.5,
+    [Resources.MINERALS]: 1.5,
+  },
+  [Biomes.GRASS]: {
+    [Resources.LUMBER]: 1,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 0,
+  },
+  [Biomes.SHRUBLAND]: {
+    [Resources.LUMBER]: 2,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 0,
+  },
+  [Biomes.FOREST]: {
+    [Resources.LUMBER]: 2,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 0,
+  },
+  [Biomes.MIXED_FOREST]: {
+    [Resources.LUMBER]: 2,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 0,
+  },
+  [Biomes.NEEDLE_LEAF_FOREST]: {
+    [Resources.LUMBER]: 2,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 0,
+  },
+  [Biomes.ALPINE_FOREST]: {
+    [Resources.LUMBER]: 2,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 0,
+  },
+  [Biomes.SNOW]: {
+    [Resources.LUMBER]: 0.5,
+    [Resources.STONE]: 1,
+    [Resources.MINERALS]: 2,
+  },
+  [Biomes.WATER]: {
+    [Resources.LUMBER]: 0,
+    [Resources.STONE]: 0,
+    [Resources.MINERALS]: 0,
+  },
+  [Biomes.DEEP_WATER]: {
+    [Resources.LUMBER]: 0,
+    [Resources.STONE]: 0,
+    [Resources.MINERALS]: 0,
+  },
+};
 
 export const BiomeColors: Record<Biomes, number> = {
   [Biomes.DESERT]: 0xfff9c4,
