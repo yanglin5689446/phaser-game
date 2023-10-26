@@ -18,7 +18,7 @@ const Register = withSceneMatched([SceneKeys.REGISTER])(() => {
       // @todo: update algorithm
       const q = parseInt(address.slice(2, 22), 16) % (1e7 + 7);
       const r = parseInt(address.slice(22), 16) % (1e7 + 7);
-      dispatch(setCenter({ q, r, jump: true }));
+      dispatch(setCenter({ q, r, jump: true, select: true }));
       dispatch(goto(SceneKeys.MAP));
     },
     [dispatch]

@@ -1,5 +1,5 @@
 import Tile from "../objects/Tile";
-import { select, setCenter } from "state/map";
+import { setCenter } from "state/map";
 import { store } from "state";
 import {
   cartesianToHexagonal,
@@ -49,7 +49,7 @@ export default class MapScene extends Phaser.Scene {
 
     const updateCenter = () => {
       const state = store.getState();
-      const { center, jump } = state.map;
+      const { center, jump, select } = state.map;
       if (!center) return;
       const centerKey = serialize(center.q, center.r);
 
@@ -59,6 +59,9 @@ export default class MapScene extends Phaser.Scene {
         if (jump) {
           camera.scrollX = x - this.cameraOffset.x;
           camera.scrollY = y - this.cameraOffset.y;
+        }
+        if (select) {
+          camera.zoom = ZOOM_LEVEL_MAX;
         }
       }
     };
@@ -92,10 +95,6 @@ export default class MapScene extends Phaser.Scene {
         return;
       } else {
         dragging = true;
-
-        // reset selected
-        const { map } = store.getState();
-        if (map.selected) store.dispatch(select(undefined));
 
         const viwerX = this.cameraOffset.x + camera.scrollX;
         const viwerY = this.cameraOffset.y + camera.scrollY;
@@ -221,6 +220,9 @@ export default class MapScene extends Phaser.Scene {
       ease: "Sine.easeInOut",
     });
 
-    setTimeout(() => store.dispatch(select({ q, r })), duration - 100);
+    setTimeout(
+      () => store.dispatch(setCenter({ q, r, select: true })),
+      duration - 100
+    );
   }
 }

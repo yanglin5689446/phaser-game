@@ -9,14 +9,14 @@ import {
 import { serialize } from "libs/coordinates";
 
 const TileInfo = () => {
-  const { selected, tiles } = useAppSelector((state) => state.map);
-  const tile = selected ? tiles[serialize(selected.q, selected.r)] : null;
+  const { center, select, tiles } = useAppSelector((state) => state.map);
+  const tile = center ? tiles[serialize(center.q, center.r)] : null;
   return (
     <Box
       position="absolute"
       top={10}
       left={10}
-      opacity={!!selected ? 1 : 0}
+      opacity={!!select ? 1 : 0}
       transition=".2s opacity"
     >
       <Box bg="rgba(255, 255, 255, 0.8)" borderRadius={8} p={8}>
@@ -25,7 +25,7 @@ const TileInfo = () => {
         </Text>
         <UnorderedList fontSize="lg" pt={3}>
           <ListItem>
-            Coordinate: ({selected?.q}, {selected?.r})
+            Coordinate: ({center?.q}, {center?.r})
           </ListItem>
           <ListItem>
             Elevation: {normalizeElevation(tile?.elevation || 0).toFixed(2)}m

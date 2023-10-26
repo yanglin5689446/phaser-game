@@ -6,37 +6,33 @@ const CHUNK_SIZE = 32;
 export interface Mapstate {
   chunkSize: number;
   tiles: Record<string, TileData>;
-  selected?: {
-    q: number;
-    r: number;
-  };
   center?: {
     q: number;
     r: number;
   };
   // quick jump flag
   jump?: boolean;
+  // select flag
+  select?: boolean;
 }
 
 const initialState: Mapstate = {
   chunkSize: CHUNK_SIZE,
   tiles: {},
-  selected: undefined,
   center: undefined,
   jump: false,
+  select: false,
 };
 
 export const mapSlice = createSlice({
   name: "map",
   initialState,
   reducers: {
-    select: (state, action) => {
-      state.selected = action.payload;
-    },
     setCenter: (state, action) => {
-      const { q, r, jump } = action.payload;
+      const { q, r, jump, select } = action.payload;
       state.center = { q, r };
       state.jump = !!jump;
+      state.select = !!select;
       if (!state.center) return;
       const { chunkSize } = state;
       for (let qi = -chunkSize; qi <= chunkSize; qi++) {
@@ -57,6 +53,6 @@ export const mapSlice = createSlice({
   },
 });
 
-export const { select, setCenter } = mapSlice.actions;
+export const { setCenter } = mapSlice.actions;
 
 export default mapSlice.reducer;

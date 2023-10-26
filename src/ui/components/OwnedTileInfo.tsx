@@ -5,7 +5,7 @@ import rocks from "assets/images/rocks.png";
 import minerals from "assets/images/minerals.png";
 
 const OwnedTileInfo = () => {
-  const { selected } = useAppSelector((state) => state.map);
+  const { select } = useAppSelector((state) => state.map);
 
   return (
     <Center

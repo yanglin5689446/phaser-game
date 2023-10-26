@@ -2,7 +2,7 @@ import { Box, Text } from "@chakra-ui/react";
 import { useAppSelector } from "state";
 
 const OverviewHint = () => {
-  const { selected } = useAppSelector((state) => state.map);
+  const { select } = useAppSelector((state) => state.map);
 
   return (
     <Box
@@ -11,7 +11,7 @@ const OverviewHint = () => {
       left={0}
       width="100%"
       transition="all .2s"
-      opacity={!!selected ? 0 : 1}
+      opacity={!!select ? 0 : 1}
     >
       <Text
         color="whiteAlpha.900"

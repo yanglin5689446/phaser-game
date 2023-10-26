@@ -29,9 +29,11 @@ const OwnedTileList = () => {
             key={serialize(tile.q, tile.r)}
             justify="center"
             gap={3}
-            onClick={() =>
-              dispatch(setCenter({ q: tile.q, r: tile.r, jump: true }))
-            }
+            onClick={() => {
+              dispatch(
+                setCenter({ q: tile.q, r: tile.r, jump: true, select: true })
+              );
+            }}
             cursor="pointer"
             p={2}
             bg="#e3e3e3"
