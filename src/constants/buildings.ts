@@ -45,7 +45,7 @@ export const COST_FACTORS = {
 };
 
 export const BASE_PRODUCTION = {
-  [Buildings.LUMBER_MILL]: 30,
+  [Buildings.LUMBER_MILL]: 3000,
   [Buildings.QUARRY]: 20,
   [Buildings.LUMBER_STORAGE]: 5000,
   [Buildings.STONE_STORAGE]: 5000,

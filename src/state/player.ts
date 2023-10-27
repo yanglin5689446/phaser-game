@@ -15,19 +15,22 @@ export const playerSlice = createSlice({
       state.ownedTiles = action.payload;
     },
     upgradeBuilding: (state, action) => {
-      const { index, building } = action.payload;
-      const ownedTile = state.ownedTiles[index];
-      const level = ownedTile.buildings[building];
+      const { coordinate, building } = action.payload;
+      const tile = state.ownedTiles.find(
+        (tile) => tile.q === coordinate.q && tile.r === coordinate.r
+      );
+      if (!tile) return;
+      const level = tile.buildings[building];
       const costs = calculateCost(building, level);
       if (
         Object.entries(costs).every(
-          ([key, value]) => value <= ownedTile.resources[key]
+          ([key, value]) => value <= tile.resources[key]
         )
       ) {
         Object.entries(costs).forEach(
-          ([key, value]) => (ownedTile.resources[key] -= value)
+          ([key, value]) => (tile.resources[key] -= value)
         );
-        ownedTile.buildings[building]++;
+        tile.buildings[building]++;
       }
     },
   },
